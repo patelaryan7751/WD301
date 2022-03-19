@@ -40,7 +40,7 @@ export function Form(props: { closeFormCB: () => void }) {
             })
         )
     }
-    const resetFormCB = () => {
+    const resetForm = () => {
         setState(
             state.map((field) => {
                 return ({
@@ -67,7 +67,7 @@ export function Form(props: { closeFormCB: () => void }) {
             <div className='flex gap-4'>
                 <input className="rounded-md bg-sky-600 mx-2 my-3 px-3 py-2 text-slate-100 text-xl" type="submit" value="Submit" />
                 <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={props.closeFormCB}>close Form</button>
-                <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={resetFormCB}>Reset Form</button>
+                <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={resetForm}>Reset Form</button>
 
             </div>
         </div>

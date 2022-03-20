@@ -1,14 +1,30 @@
 import React, { useState } from "react";
 import LabeledInput from "../LabeledInput";
-const formFields = [
+
+interface formField {
+    id: number,
+    label: string,
+    type: string,
+    value: string,
+    placeholder: string
+}
+const initialFormFields: formField[] = [
     { id: 1, label: "First Name", type: "text", placeholder: "John", value: "" },
     { id: 2, label: "Last Name", type: "text", placeholder: "Doe", value: "" },
     { id: 3, label: "Email", type: "email", placeholder: "hey@example.com", value: "" },
     { id: 4, label: "Phone Number", type: "tel", placeholder: "7751931940", value: "" },
     { id: 5, label: "Date of Birth", type: "date", placeholder: "", value: "" }
 ];
+const initialState: () => formField[] = () => {
+    const formFieldsJSON = localStorage.getItem("formFields")
+    const persistantFormFields = formFieldsJSON ? JSON.parse(formFieldsJSON) : initialFormFields
+    return persistantFormFields
+}
+const saveFormData = (currentState: formField[]) => {
+    localStorage.setItem("formFields", JSON.stringify(currentState))
+}
 export function Form(props: { closeFormCB: () => void }) {
-    const [state, setState] = useState(formFields)
+    const [state, setState] = useState(initialState())
     const [newField, setNewField] = useState("");
     const addField = () => {
         setState([
@@ -65,7 +81,9 @@ export function Form(props: { closeFormCB: () => void }) {
 
             </div>
             <div className='flex gap-4'>
-                <input className="rounded-md bg-sky-600 mx-2 my-3 px-3 py-2 text-slate-100 text-xl" type="submit" value="Submit" />
+                <button onClick={(_) => {
+                    saveFormData(state)
+                }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Save</button>
                 <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={props.closeFormCB}>close Form</button>
                 <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={resetForm}>Reset Form</button>
 

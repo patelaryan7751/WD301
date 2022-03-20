@@ -41,7 +41,6 @@ export function Form(props: { closeFormCB: () => void }) {
         )
     }
     const resetForm = () => {
-
         setState(
             state.map((field) => {
                 return ({

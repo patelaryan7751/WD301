@@ -1,6 +1,6 @@
-import { Link, navigate } from "raviger";
-import React, { useState, useEffect, useRef } from "react";
-import LabeledInput from "../LabeledInput";
+import { navigate } from "raviger";
+import React, { useState, useEffect } from "react";
+import PreviewLabeledInput from "./PreviewLabeledInput";
 import { formData, formField } from "../types/form"
 
 const initialFormFields: formField[] = [];
@@ -53,31 +53,21 @@ const saveFormData = (currentState: formData) => {
     saveLocalForms(updatedLocalForms);
 
 }
-export function Form(props: { formId: number }) {
+export function PreviewQuiz(props: { formId: number }) {
     const [state, setState] = useState({
         id: Number(new Date()),
         title: "Untitled Form",
         formFields: initialFormFields
     })
-    // const [state, setState] = useState(() => initialState(props.formId))
-    const [newField, setNewField] = useState("");
-    const titleRef = useRef<HTMLInputElement>(null);
+    const [currentQuestion, setCurrentQuestionState] = useState(0)
     useEffect(() => {
-        state.id !== props.formId && navigate(`/forms/${state.id}`)
+        state.id !== props.formId && navigate(`/preview/${state.id}`)
     }, [state.id, props.formId])
-    useEffect(() => {
-        console.log("Component Mounted");
-        document.title = "Form Editor";
-        titleRef.current?.focus();
-        return () => {
-            console.log("Component unMounted");
-            document.title = "React App";
-        }
-    }, [])
 
     useEffect(() => {
         const currentForm = initialState(props.formId)
         setState(currentForm)
+
     }, [])
 
     useEffect(() => {
@@ -91,30 +81,7 @@ export function Form(props: { formId: number }) {
         }
 
     }, [state])
-    const addField = () => {
-        setState({
-            ...state,
-            formFields: [
-                ...state.formFields,
-                {
-                    id: Number(new Date()),
-                    label: newField,
-                    type: "text",
-                    placeholder: newField,
-                    value: ""
-                }
-            ]
-        }
-        )
-        setNewField("")
-    }
-    const removeField = (id: number) => {
-        setState({
-            ...state,
 
-            formFields: state.formFields.filter(field => field.id !== id)
-        })
-    }
     const updateField = (value: string, id: number) => {
         setState({
             ...state,
@@ -122,8 +89,7 @@ export function Form(props: { formId: number }) {
                 if (field.id === id) {
                     return ({
                         ...field,
-                        label: value,
-                        placeholder: value
+                        value: value
                     })
                 }
                 return ({
@@ -133,36 +99,55 @@ export function Form(props: { formId: number }) {
         })
     }
 
+    const resetForm = () => {
+        setState({
+            ...state,
+            formFields: state.formFields.map((field) => {
+                return ({
+                    ...field,
+                    value: ""
+                })
+            })
+        }
+        )
+    }
+
 
     return (
         <div>
             <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
-                <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
-                    setState({
-                        ...state,
-                        title: e.target.value,
-                    })
-                }}
-                    ref={titleRef}
-                />
+                <h1 className="text-xl">{state.title}</h1>
                 <div>
+                    Question {currentQuestion + 1}:
+                    <br />
 
-                    {state.formFields.map((field) =>
-                        <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                    {state.formFields.map((field, index) =>
+                        index === currentQuestion ? <PreviewLabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} value={field.value} updateFieldCB={updateField} /> : ""
                     )}
                 </div>
-                <div className="flex gap-2">
-                    <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={newField} onChange={(e) => {
-                        setNewField(e.target.value)
-                    }} />
-                    <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addField} >Add Field</button>
 
-                </div>
                 <div className='flex gap-4'>
-                    <button onClick={(_) => {
+                    {/* <button onClick={(_) => {
                         saveFormData(state)
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Save</button>
-                    <Link href="/" className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg'>Home</Link>
+                    <Link href="/" className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg'>Home</Link> */}
+                    {state.formFields.length - 1 !== Number(currentQuestion) ? <button onClick={() => {
+                        saveFormData(state)
+                        setCurrentQuestionState(Number(currentQuestion + 1))
+                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Next</button> : ""}
+                    {Number(currentQuestion) !== 0 ? <button onClick={() => {
+                        saveFormData(state)
+                        setCurrentQuestionState(Number(currentQuestion - 1))
+                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
+                    {state.formFields.length - 1 === Number(currentQuestion) ? <button onClick={() => {
+                        saveFormData(state)
+                        navigate(`/`)
+                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
+                    <button onClick={() => {
+                        resetForm()
+                        setCurrentQuestionState(0)
+                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Reset Quiz</button>
+
 
                 </div>
             </div>

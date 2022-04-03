@@ -14,7 +14,7 @@ export default function Home() {
     return (
         <div>
             <div className='flex items-center justify-end'>
-                <Link href={'/forms/0'} className='bg-blue-500 hover:bg-blue-700 text-white cursor-pointer font-bold px-4 m-2 rounded-lg'>
+                <Link href={'/form/0'} className='bg-blue-500 hover:bg-blue-700 text-white cursor-pointer font-bold px-4 m-2 rounded-lg'>
                     <div className="flex flex-col py-2">
                         <h1 className="text-xl text-slate-700">+ New Form</h1>
                         <span className="text-gray-600"></span>
@@ -43,7 +43,7 @@ export default function Home() {
                         <p className="text-gray-700 text-base mb-4">
                             This form contains {form.formFields.length} questions to answer.
                         </p>
-                        <Link type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" href={`/forms/${form.id}`}>Open</Link>
+                        <Link type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" href={`/form/${form.id}`}>Open</Link>
                         <button type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" onClick={() => { setForms(forms.filter((f) => f.id !== form.id)) }}>Delete</button>
                         <Link type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" href={`/preview/${form.id}`}>Preview</Link>
                     </div>

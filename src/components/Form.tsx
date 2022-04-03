@@ -63,7 +63,7 @@ export function Form(props: { formId: number }) {
     const [newField, setNewField] = useState("");
     const titleRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
-        state.id !== props.formId && navigate(`/forms/${state.id}`)
+        state.id !== props.formId && navigate(`/form/${state.id}`)
     }, [state.id, props.formId])
     useEffect(() => {
         console.log("Component Mounted");

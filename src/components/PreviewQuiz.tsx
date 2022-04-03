@@ -117,21 +117,21 @@ export function PreviewQuiz(props: { formId: number }) {
         <div>
             <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
                 <h1 className="text-xl">{state.title}</h1>
-                <div>
+                {state.formFields.length !== 0 ? <div>
                     Question {currentQuestion + 1}:
                     <br />
 
                     {state.formFields.map((field, index) =>
                         index === currentQuestion ? <PreviewLabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} value={field.value} updateFieldCB={updateField} /> : ""
                     )}
+                </div> : <div>
+                    <h1 className="text-xl">No questions</h1>
                 </div>
+                }
 
                 <div className='flex gap-4'>
-                    {/* <button onClick={(_) => {
-                        saveFormData(state)
-                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Save</button>
-                    <Link href="/" className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg'>Home</Link> */}
-                    {state.formFields.length - 1 !== Number(currentQuestion) ? <button onClick={() => {
+
+                    {state.formFields.length - 1 !== Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
                         saveFormData(state)
                         setCurrentQuestionState(Number(currentQuestion + 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Next</button> : ""}
@@ -139,14 +139,14 @@ export function PreviewQuiz(props: { formId: number }) {
                         saveFormData(state)
                         setCurrentQuestionState(Number(currentQuestion - 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
-                    {state.formFields.length - 1 === Number(currentQuestion) ? <button onClick={() => {
+                    {state.formFields.length - 1 === Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
                         saveFormData(state)
                         navigate(`/`)
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
-                    <button onClick={() => {
+                    {state.formFields.length !== 0 ? <button onClick={() => {
                         resetForm()
                         setCurrentQuestionState(0)
-                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Reset Quiz</button>
+                    }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Reset Quiz</button> : ""}
 
 
                 </div>

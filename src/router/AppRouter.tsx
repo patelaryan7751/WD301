@@ -10,7 +10,7 @@ import { PreviewQuiz } from '../components/PreviewQuiz'
 const routes = {
     '/': () => <Home />,
     '/about': () => <About />,
-    "/forms/:id": ({ id }: { id: string }) => <Form formId={Number(id)} />,
+    "/form/:id": ({ id }: { id: string }) => <Form formId={Number(id)} />,
     "/preview/:id": ({ id }: { id: string }) => <PreviewQuiz formId={Number(id)} />
 }
 

@@ -10,16 +10,9 @@ const getLocalForms: () => formData[] = () => {
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
 
-const getLocalAnswers: () => previewAnswers[] = () => {
-    const savedAnswersJSON = localStorage.getItem("savedAnswers")
-    return savedAnswersJSON ? JSON.parse(savedAnswersJSON) : []
-}
 
-const saveAnswers = (localAnswers: previewAnswers[]) => {
-    console.log("save")
-    localStorage.setItem("savedAnswers", JSON.stringify(localAnswers))
 
-}
+
 
 const initialState: (id: number) => formData = (id) => {
     console.log("start process")
@@ -51,11 +44,6 @@ const initialState: (id: number) => formData = (id) => {
 }
 
 const initialAnswerState: (currentForm: formData) => previewAnswers[] = (currentForm) => {
-    const localAnswers = getLocalAnswers()
-    if (localAnswers.length !== 0) {
-        return localAnswers
-
-    }
     console.log(currentForm)
 
     return currentForm.formFields.map((field, index) => {
@@ -108,7 +96,6 @@ export function PreviewQuiz(props: { formId: number }) {
         const resetAnswer = state.formFields.map((field, index) => {
             return { id: index, question: field.label, answer: field.value }
         })
-        saveAnswers(resetAnswer)
         setanswerState(resetAnswer)
 
 
@@ -134,15 +121,12 @@ export function PreviewQuiz(props: { formId: number }) {
                 <div className='flex gap-4'>
 
                     {state.formFields.length - 1 !== Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
-                        saveAnswers(answers)
                         setCurrentQuestionState(Number(currentQuestion + 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Next</button> : ""}
                     {Number(currentQuestion) !== 0 ? <button onClick={() => {
-                        saveAnswers(answers)
                         setCurrentQuestionState(Number(currentQuestion - 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
                     {state.formFields.length - 1 === Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
-                        saveAnswers(answers)
                         navigate(`/`)
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
                     {state.formFields.length !== 0 ? <button onClick={() => {

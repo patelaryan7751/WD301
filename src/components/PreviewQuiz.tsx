@@ -2,6 +2,7 @@ import { navigate } from "raviger";
 import React, { useState, useEffect } from "react";
 import PreviewLabeledInput from "./PreviewLabeledInput";
 import { formData, formField } from "../types/form"
+import { previewAnswers } from "../types/preview"
 
 const initialFormFields: formField[] = [];
 const getLocalForms: () => formData[] = () => {
@@ -9,12 +10,23 @@ const getLocalForms: () => formData[] = () => {
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
 
+const getLocalAnswers: () => previewAnswers[] = () => {
+    const savedAnswersJSON = localStorage.getItem("savedAnswers")
+    return savedAnswersJSON ? JSON.parse(savedAnswersJSON) : []
+}
+
+const saveAnswers = (localAnswers: previewAnswers[]) => {
+    console.log("save")
+    localStorage.setItem("savedAnswers", JSON.stringify(localAnswers))
+
+}
+
 const initialState: (id: number) => formData = (id) => {
     console.log("start process")
-    const newForm = {
-        id: Number(new Date()),
-        title: "Untitled Form",
-        formFields: initialFormFields
+    const notFoundForm = {
+        id: id,
+        title: "Form Not Found",
+        formFields: []
     }
     const localForms = getLocalForms();
     if (id !== 0) {
@@ -31,28 +43,28 @@ const initialState: (id: number) => formData = (id) => {
 
 
         console.log("not got ")
-        saveLocalForms([...localForms, newForm])
-        return newForm
+        return notFoundForm
     }
 
-    return newForm
+    return notFoundForm
 
 }
 
+const initialAnswerState: (currentForm: formData) => previewAnswers[] = (currentForm) => {
+    const localAnswers = getLocalAnswers()
+    if (localAnswers.length !== 0) {
+        return localAnswers
 
-const saveLocalForms = (localForms: formData[]) => {
-    console.log("save")
-    localStorage.setItem("savedForms", JSON.stringify(localForms))
+    }
+    console.log(currentForm)
 
+    return currentForm.formFields.map((field, index) => {
+        return { id: index, question: field.label, answer: field.value }
+    })
 }
-const saveFormData = (currentState: formData) => {
-    const localForms = getLocalForms();
-    const updatedLocalForms = localForms.map((form) =>
-        form.id === currentState.id ? currentState : form
-    )
-    saveLocalForms(updatedLocalForms);
 
-}
+
+
 export function PreviewQuiz(props: { formId: number }) {
     const [state, setState] = useState({
         id: Number(new Date()),
@@ -60,6 +72,7 @@ export function PreviewQuiz(props: { formId: number }) {
         formFields: initialFormFields
     })
     const [currentQuestion, setCurrentQuestionState] = useState(0)
+    const [answers, setanswerState] = useState<previewAnswers[]>([])
     useEffect(() => {
         state.id !== props.formId && navigate(`/preview/${state.id}`)
     }, [state.id, props.formId])
@@ -67,49 +80,38 @@ export function PreviewQuiz(props: { formId: number }) {
     useEffect(() => {
         const currentForm = initialState(props.formId)
         setState(currentForm)
+        const currAnswer = initialAnswerState(currentForm)
+        setanswerState(currAnswer)
 
     }, [])
 
-    useEffect(() => {
-        let timeout = setTimeout(() => {
-            saveFormData(state);
-            console.log("data saved", state)
-        }, 1000)
-        return () => {
-            console.log("timer stopped")
-            clearTimeout(timeout)
-        }
 
-    }, [state])
+
 
     const updateField = (value: string, id: number) => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
-                if (field.id === id) {
-                    return ({
-                        ...field,
-                        value: value
-                    })
-                }
-                return ({
-                    ...field
-                })
-            })
-        })
-    }
 
-    const resetForm = () => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
-                return ({
-                    ...field,
-                    value: ""
-                })
+
+        setanswerState((prevanswerState) => {
+            return prevanswerState.map((answer) => {
+                if (answer.id === Number(id)) {
+                    let currentField = { ...answer, answer: value }
+                    return currentField
+                }
+                return answer
             })
         }
         )
+
+    }
+
+    const resetForm = () => {
+        const resetAnswer = state.formFields.map((field, index) => {
+            return { id: index, question: field.label, answer: field.value }
+        })
+        saveAnswers(resetAnswer)
+        setanswerState(resetAnswer)
+
+
     }
 
 
@@ -122,7 +124,7 @@ export function PreviewQuiz(props: { formId: number }) {
                     <br />
 
                     {state.formFields.map((field, index) =>
-                        index === currentQuestion ? <PreviewLabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} value={field.value} updateFieldCB={updateField} /> : ""
+                        index === currentQuestion ? <PreviewLabeledInput qnum={index} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} value={answers[index].answer} updateFieldCB={updateField} /> : ""
                     )}
                 </div> : <div>
                     <h1 className="text-xl">No questions</h1>
@@ -132,15 +134,15 @@ export function PreviewQuiz(props: { formId: number }) {
                 <div className='flex gap-4'>
 
                     {state.formFields.length - 1 !== Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
-                        saveFormData(state)
+                        saveAnswers(answers)
                         setCurrentQuestionState(Number(currentQuestion + 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Next</button> : ""}
                     {Number(currentQuestion) !== 0 ? <button onClick={() => {
-                        saveFormData(state)
+                        saveAnswers(answers)
                         setCurrentQuestionState(Number(currentQuestion - 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
                     {state.formFields.length - 1 === Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
-                        saveFormData(state)
+                        saveAnswers(answers)
                         navigate(`/`)
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
                     {state.formFields.length !== 0 ? <button onClick={() => {

@@ -3,7 +3,6 @@ export interface formData {
     title: string;
     formFields: formField[];
 }
-
 export interface formField {
     id: number;
     label: string;

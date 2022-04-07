@@ -20,7 +20,6 @@ export default function Home() {
                         <span className="text-gray-600"></span>
                     </div>
                 </Link>
-
             </div>
             <form onSubmit={(e) => {
                 e.preventDefault();
@@ -49,7 +48,6 @@ export default function Home() {
                     </div>
                 </div>)
             }
-
         </div>
     )
 }

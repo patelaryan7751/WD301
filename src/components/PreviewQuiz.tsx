@@ -10,48 +10,35 @@ const getLocalForms: () => formData[] = () => {
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
 
-
-
-
-
 const initialState: (id: number) => formData = (id) => {
     console.log("start process")
     const notFoundForm = {
+        questionId: id,
         id: id,
         title: "Form Not Found",
         formFields: []
     }
     const localForms = getLocalForms();
     if (id !== 0) {
-
-
         const form = localForms.find((f) => f.id === id)
         if (form) {
             console.log("got ", form)
             return form
         }
-
     }
     else {
-
-
         console.log("not got ")
         return notFoundForm
     }
-
     return notFoundForm
-
 }
 
 const initialAnswerState: (currentForm: formData) => previewAnswers[] = (currentForm) => {
     console.log(currentForm)
-
     return currentForm.formFields.map((field, index) => {
-        return { id: index, question: field.label, answer: field.value }
+        return { id: index, question: field.label, answer: field.value, questionId: field.id, }
     })
 }
-
-
 
 export function PreviewQuiz(props: { formId: number }) {
     const [state, setState] = useState({
@@ -70,15 +57,9 @@ export function PreviewQuiz(props: { formId: number }) {
         setState(currentForm)
         const currAnswer = initialAnswerState(currentForm)
         setanswerState(currAnswer)
-
     }, [])
 
-
-
-
     const updateField = (value: string, id: number) => {
-
-
         setanswerState((prevanswerState) => {
             return prevanswerState.map((answer) => {
                 if (answer.id === Number(id)) {
@@ -89,18 +70,14 @@ export function PreviewQuiz(props: { formId: number }) {
             })
         }
         )
-
     }
 
     const resetForm = () => {
         const resetAnswer = state.formFields.map((field, index) => {
-            return { id: index, question: field.label, answer: field.value }
+            return { id: index, question: field.label, answer: field.value, questionId: field.id }
         })
         setanswerState(resetAnswer)
-
-
     }
-
 
     return (
         <div>
@@ -109,7 +86,6 @@ export function PreviewQuiz(props: { formId: number }) {
                 {state.formFields.length !== 0 ? <div>
                     Question {currentQuestion + 1}:
                     <br />
-
                     {state.formFields.map((field, index) =>
                         index === currentQuestion ? <PreviewLabeledInput qnum={index} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} value={answers[index].answer} updateFieldCB={updateField} /> : ""
                     )}
@@ -117,9 +93,7 @@ export function PreviewQuiz(props: { formId: number }) {
                     <h1 className="text-xl">No questions</h1>
                 </div>
                 }
-
                 <div className='flex gap-4'>
-
                     {state.formFields.length - 1 !== Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
                         setCurrentQuestionState(Number(currentQuestion + 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Next</button> : ""}
@@ -133,8 +107,6 @@ export function PreviewQuiz(props: { formId: number }) {
                         resetForm()
                         setCurrentQuestionState(0)
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Reset Quiz</button> : ""}
-
-
                 </div>
             </div>
         </div>

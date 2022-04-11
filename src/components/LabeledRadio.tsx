@@ -13,9 +13,7 @@ export default function LabeledRadio(props: { id: number, options: string[], lab
                     props.updateOptionCB(e.target.value, Number(e.target.id.split("option")[1]), props.id)
                 }} />
                     <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={(_) => props.removeOptionCB(props.id, index)} >Remove</button>
-
                 </div>)
-
             }
             <hr style={{ borderWidth: 8 }} />
         </div>

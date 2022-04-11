@@ -85,12 +85,16 @@ export function PreviewQuiz(props: { formId: number }) {
     }
 
     const updateOptionAns = (options: optionanswer[], id: number) => {
+        console.log(id)
         let optionArr: string[] = options.map((item) => {
             return item.value
         })
+        console.log(optionArr)
         setanswerState((prevanswerState) => {
             return prevanswerState.map((answer) => {
-                if (answer.id === Number(id)) {
+                console.log(answer.id, Number(id))
+                if (answer.questionId === Number(id)) {
+                    console.log("GOT")
                     return {
                         ...answer, answer: optionArr
                     }
@@ -114,7 +118,7 @@ export function PreviewQuiz(props: { formId: number }) {
             case "text":
                 return <PreviewLabeledInput kind={question.kind} options={[]} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={question.type} value={answers[index].answer} updateFieldCB={updateField} />
             case "dropdown":
-                return <PreviewLabeledOptions kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer[0]} updateOptionAnsCB={updateOptionAns} />
+                return <PreviewLabeledOptions kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer} updateOptionAnsCB={updateOptionAns} />
             case "radio":
                 return <PreviewLabeledRadio kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer} updateRadioAnsCB={updateField} />
             case "textarea":

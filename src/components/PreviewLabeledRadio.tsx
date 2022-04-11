@@ -6,7 +6,8 @@ import React, { useState } from 'react';
 export default function PreviewLabeledRadio(props: { kind: string, options: string[], qnum: number, id: number, label: string, type: string, placeholder: string, updateRadioAnsCB: (value: string, id: number) => void, value: string | string[] }) {
 
     return (
-        <div className="flex">
+        <div>
+            <h1>{props.value ? <div>Selected Answer:{props.value}</div> : ""}</h1>
             <h1 className='text-xl'>{props.label}</h1>
             <br />
             <div>

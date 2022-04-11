@@ -1,13 +1,19 @@
 import { Link, navigate } from "raviger";
 import React, { useState, useEffect, useRef } from "react";
 import LabeledInput from "../LabeledInput";
-import { formData, formField } from "../types/form"
+import { formData, formField, textFieldTypes } from "../types/form"
+import LabeledOption from "./LabeledOption";
+import LabeledRadio from "./LabeledRadio";
 
-const initialFormFields: formField[] = [];
+const initialFormFields: formField[] = [
+    // { kind: "dropdown", id: 1, label: "Priority", options: ["Low", "High"], value: "", placeholder: "Priority" }
+];
 const getLocalForms: () => formData[] = () => {
     const savedFormsJSON = localStorage.getItem("savedForms")
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
+
+const Typeoptions = ["text", "dropdown", "radio", "textarea", "email"]
 
 const initialState: (id: number) => formData = (id) => {
     console.log("start process")
@@ -54,6 +60,8 @@ export function Form(props: { formId: number }) {
     })
     // const [state, setState] = useState(() => initialState(props.formId))
     const [newField, setNewField] = useState("");
+    const [newOption, setNewOption] = useState<string[]>([]);
+    const [newFieldType, setNewFieldType] = useState("");
     const titleRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
         state.id !== props.formId && navigate(`/form/${state.id}`)
@@ -85,28 +93,136 @@ export function Form(props: { formId: number }) {
     }, [state])
 
     const addField = () => {
-        setState({
-            ...state,
-            formFields: [
-                ...state.formFields,
-                {
-                    id: Number(new Date()),
-                    label: newField,
-                    type: "text",
-                    placeholder: newField,
-                    value: ""
+
+        switch (newFieldType) {
+            case "text":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "text",
+                            id: Number(new Date()),
+                            label: newField,
+                            type: "text",
+                            placeholder: newField,
+                            value: ""
+                        }
+                    ]
                 }
-            ]
+                )
+                setNewField("")
+                setNewFieldType("")
+                break;
+
+            case "dropdown":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "dropdown",
+                            id: Number(new Date()),
+                            label: newField,
+                            placeholder: newField,
+                            value: [],
+                            options: newOption
+                        }
+                    ]
+                }
+                )
+                setNewField("")
+                setNewOption([])
+                setNewFieldType("")
+                break;
+
+            case "radio":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "radio",
+                            id: Number(new Date()),
+                            label: newField,
+                            placeholder: newField,
+                            value: "",
+                            options: newOption,
+                            type: "radio"
+                        }
+
+                    ]
+                }
+                )
+                setNewField("")
+                setNewOption([])
+                setNewFieldType("")
+                break;
+
+            case "textarea":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "textarea",
+                            id: Number(new Date()),
+                            label: newField,
+                            type: "textarea",
+                            placeholder: newField,
+                            value: ""
+                        }
+                    ]
+                }
+                )
+                setNewField("")
+                setNewFieldType("")
+                break;
+
+            case "email":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "email",
+                            id: Number(new Date()),
+                            label: newField,
+                            type: "email",
+                            placeholder: newField,
+                            value: ""
+                        }
+                    ]
+                }
+                )
+                setNewField("")
+                setNewFieldType("")
+                break;
         }
-        )
-        setNewField("")
+
     }
+
 
     const removeField = (id: number) => {
         setState({
             ...state,
 
             formFields: state.formFields.filter(field => field.id !== id)
+        })
+    }
+
+    const removeOption = (fieldid: number, optionid: number) => {
+        setState({
+            ...state,
+
+            formFields: state.formFields.map((field) => {
+                if (field.id === fieldid && (field.kind === "dropdown" || field.kind === "radio")) {
+                    let newoptions = field.options.filter((option, index) => index !== optionid)
+                    return { ...field, options: newoptions }
+                }
+                return field
+
+            })
         })
     }
 
@@ -128,10 +244,47 @@ export function Form(props: { formId: number }) {
         })
     }
 
+    const addOption = () => {
+        setNewOption([...newOption, ""])
+    }
+
+    const updateOption = (value: string, id: number) => {
+        let updatedOption = newOption.map((option, index) => {
+            if (index === id) {
+                return value
+            }
+            return option
+        })
+        setNewOption(updatedOption)
+    }
+
+    const updateExOption = (value: string, id: number, fieldId: number) => {
+        setState({
+            ...state,
+            formFields: state.formFields.map((field) => {
+                if (field.id === fieldId && field.kind === "dropdown") {
+                    return ({
+                        ...field,
+                        options: field.options.map((option, index) => {
+                            if (index === id) {
+                                return value
+                            }
+                            return option
+                        })
+                    })
+                }
+                return ({
+                    ...field
+                })
+            })
+        })
+    }
+
+
     return (
         <div>
-            <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
-                <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
+            <div className=" gap-2 p-4 divide-y-2 divide-dotted">
+                <input type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
                     setState({
                         ...state,
                         title: e.target.value,
@@ -140,16 +293,99 @@ export function Form(props: { formId: number }) {
                     ref={titleRef}
                 />
                 <div>
-                    {state.formFields.map((field) =>
-                        <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
-                    )}
+                    {state.formFields.map((field) => {
+                        switch (field.kind) {
+                            case "text":
+                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                            case "dropdown":
+                                return <LabeledOption id={field.id} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                            case "radio":
+                                return <LabeledRadio id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                            case "textarea":
+                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                            case "email":
+                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+
+                        }
+
+                    })}
                 </div>
-                <div className="flex gap-2">
-                    <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={newField} onChange={(e) => {
+                <div className="gap-2">
+                    {/* Text */}
+
+                    {newFieldType === "text" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                         setNewField(e.target.value)
+                    }} /> : ""}
+
+                    {/* DropDown */}
+                    {newFieldType === "dropdown" ? <div> <h1 className='text-bold'>Question:</h1> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                        setNewField(e.target.value)
+
                     }} />
-                    <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addField} >Add Field</button>
+                        <h1 className="text-bold">Options</h1>
+                        {newOption.map((option, index) => <div key={index}>
+
+                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                                // setNewOption([...newOption,e.target.value])
+                                updateOption(e.target.value, Number(e.target.id))
+                            }} />
+                            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={(_) => {
+                                setNewOption(newOption.filter((option, i) => i !== index))
+                            }} >Remove</button>
+                        </div>
+
+                        )}
+                        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addOption} >Add Option</button>
+                    </div>
+                        : ""}
+                    {/* radio */}
+                    {newFieldType === "radio" ? <div> <h1 className='text-bold'>Question:</h1> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                        setNewField(e.target.value)
+
+                    }} />
+                        <h1 className="text-bold">Options</h1>
+                        {newOption.map((option, index) => <div key={index}>
+
+                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                                // setNewOption([...newOption,e.target.value])
+                                updateOption(e.target.value, Number(e.target.id))
+                            }} />
+                            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={(_) => {
+                                setNewOption(newOption.filter((option, i) => i !== index))
+                            }} >Remove</button>
+                        </div>
+
+                        )}
+                        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addOption} >Add Option</button>
+                    </div>
+                        : ""}
                 </div>
+
+                {/* TextArea*/}
+
+                {newFieldType === "textarea" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                    setNewField(e.target.value)
+                }} /> : ""}
+
+                {/* Email */}
+
+                {newFieldType === "email" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                    setNewField(e.target.value)
+                }} /> : ""}
+
+                <select className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 my-2" value={newFieldType} onChange={(e) => {
+                    setNewFieldType(e.target.value)
+                }} >
+                    <option value="">Select Question type</option>
+                    {Typeoptions.map((option, index) =>
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+
+                    )}
+                </select>
+
+                <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addField} >Add Field</button>
                 <div className='flex gap-4'>
                     <button onClick={(_) => {
                         saveFormData(state)

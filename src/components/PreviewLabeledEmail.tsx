@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PreviewLabeledInput(props: { kind: string, options: string[], qnum: number, id: number, label: string, type: string, placeholder: string, updateFieldCB: (value: string, id: number) => void, value: string | string[] }) {
+export default function PreviewLabeledEmail(props: { kind: string, options: string[], qnum: number, id: number, label: string, type: string, placeholder: string, updateFieldCB: (value: string, id: number) => void, value: string | string[] }) {
     return (
         <div className="flex gap-2">
             <label className="text-xl">{props.label}</label>

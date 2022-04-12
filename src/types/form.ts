@@ -3,7 +3,7 @@ export type formData = {
     title: string;
     formFields: formField[];
 }
-export type textFieldTypes = "text" | "email" | "date" | "radio" | "textarea";
+export type textFieldTypes = "text" | "email" | "date" | "radio" | "textarea" | "range";
 
 type TextField = {
     kind: "text"
@@ -12,6 +12,15 @@ type TextField = {
     value: string;
     placeholder: string;
     type: textFieldTypes;
+}
+
+type SingleDropdownField = {
+    kind: "singleDropdown"
+    id: number;
+    label: string;
+    value: string[];
+    placeholder: string;
+    options: string[];
 }
 
 type DropdownField = {
@@ -44,6 +53,18 @@ type TextAreaField = {
 
 }
 
+type RangeField = {
+    kind: "range"
+    id: number;
+    label: string;
+    value: string;
+    placeholder: string;
+    max: number;
+    min: number;
+    type: textFieldTypes;
+
+}
+
 type EmailField = {
     kind: "email"
     id: number;
@@ -54,4 +75,4 @@ type EmailField = {
 
 }
 
-export type formField = TextField | DropdownField | RadioField | TextAreaField | EmailField
+export type formField = TextField | DropdownField | RadioField | TextAreaField | EmailField | SingleDropdownField | RangeField

@@ -7,6 +7,8 @@ import { optionanswer, previewAnswers } from "../types/preview"
 import PreviewLabeledRadio from "./PreviewLabeledRadio";
 import PreviewLabeledTextarea from "./PreviewLabeledTextarea";
 import PreviewLabeledEmail from "./PreviewLabeledEmail";
+import PreviewLabeledSingleOptions from "./PreviewLabeledSingleOptions";
+import PreviewLabeledRange from "./PreviewLabeledRange";
 
 const initialFormFields: formField[] = [];
 const getLocalForms: () => formData[] = () => {
@@ -106,6 +108,23 @@ export function PreviewQuiz(props: { formId: number }) {
     }
 
 
+    const updateSingleOptionAns = (value: string, id: number) => {
+
+        setanswerState((prevanswerState) => {
+            return prevanswerState.map((answer) => {
+                console.log(answer.id, Number(id))
+                if (answer.questionId === Number(id)) {
+                    return {
+                        ...answer, answer: value
+                    }
+                }
+                return answer
+            })
+        }
+        )
+    }
+
+
     const resetForm = () => {
         const resetAnswer = state.formFields.map((field, index) => {
             return { id: index, question: field.label, answer: field.value, questionId: field.id }
@@ -119,12 +138,16 @@ export function PreviewQuiz(props: { formId: number }) {
                 return <PreviewLabeledInput kind={question.kind} options={[]} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={question.type} value={answers[index].answer} updateFieldCB={updateField} />
             case "dropdown":
                 return <PreviewLabeledOptions kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer} updateOptionAnsCB={updateOptionAns} />
+            case "singleDropdown":
+                return <PreviewLabeledSingleOptions kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer} updateSingleOptionAnsCB={updateSingleOptionAns} />
             case "radio":
                 return <PreviewLabeledRadio kind={question.kind} options={question.options} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={""} value={answers[index].answer} updateRadioAnsCB={updateField} />
             case "textarea":
                 return <PreviewLabeledTextarea kind={question.kind} options={[]} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={question.type} value={answers[index].answer} updateFieldCB={updateField} />
             case "email":
                 return <PreviewLabeledEmail kind={question.kind} options={[]} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={question.type} value={answers[index].answer} updateFieldCB={updateField} />
+            case "range":
+                return <PreviewLabeledRange kind={question.kind} min={question.min} max={question.max} qnum={index} id={question.id} key={question.id} label={question.label} placeholder={question.placeholder} type={question.type} value={answers[index].answer} updateFieldCB={updateField} />
         }
     }
 

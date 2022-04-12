@@ -4,6 +4,7 @@ import LabeledInput from "../LabeledInput";
 import { formData, formField, textFieldTypes } from "../types/form"
 import LabeledOption from "./LabeledOption";
 import LabeledRadio from "./LabeledRadio";
+import LabeledRange from "./LabeledRange";
 
 const initialFormFields: formField[] = [
     // { kind: "dropdown", id: 1, label: "Priority", options: ["Low", "High"], value: "", placeholder: "Priority" }
@@ -13,7 +14,7 @@ const getLocalForms: () => formData[] = () => {
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
 
-const Typeoptions = ["text", "dropdown", "radio", "textarea", "email"]
+const Typeoptions = ["text", "dropdown", "radio", "textarea", "email", "singleDropdown", "range"]
 
 const initialState: (id: number) => formData = (id) => {
     console.log("start process")
@@ -62,6 +63,8 @@ export function Form(props: { formId: number }) {
     const [newField, setNewField] = useState("");
     const [newOption, setNewOption] = useState<string[]>([]);
     const [newFieldType, setNewFieldType] = useState("");
+    const [newMax, setNewMax] = useState<number>(100);
+    const [newMin, setNewMin] = useState<number>(0);
     const titleRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
         state.id !== props.formId && navigate(`/form/${state.id}`)
@@ -115,6 +118,28 @@ export function Form(props: { formId: number }) {
                 setNewFieldType("")
                 break;
 
+            case "range":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "range",
+                            id: Number(new Date()),
+                            label: newField,
+                            type: "range",
+                            value: "",
+                            placeholder: newField,
+                            max: newMax,
+                            min: newMin
+                        }
+                    ]
+                }
+                )
+                setNewField("")
+                setNewFieldType("")
+                break;
+
             case "dropdown":
                 setState({
                     ...state,
@@ -122,6 +147,27 @@ export function Form(props: { formId: number }) {
                         ...state.formFields,
                         {
                             kind: "dropdown",
+                            id: Number(new Date()),
+                            label: newField,
+                            placeholder: newField,
+                            value: [],
+                            options: newOption
+                        }
+                    ]
+                }
+                )
+                setNewField("")
+                setNewOption([])
+                setNewFieldType("")
+                break;
+
+            case "singleDropdown":
+                setState({
+                    ...state,
+                    formFields: [
+                        ...state.formFields,
+                        {
+                            kind: "singleDropdown",
                             id: Number(new Date()),
                             label: newField,
                             placeholder: newField,
@@ -244,6 +290,41 @@ export function Form(props: { formId: number }) {
         })
     }
 
+
+    const updateMaxRange = (value: number, id: number) => {
+        setState({
+            ...state,
+            formFields: state.formFields.map((field) => {
+                if (field.id === id) {
+                    return ({
+                        ...field,
+                        max: value
+                    })
+                }
+                return ({
+                    ...field
+                })
+            })
+        })
+    }
+
+    const updateMinRange = (value: number, id: number) => {
+        setState({
+            ...state,
+            formFields: state.formFields.map((field) => {
+                if (field.id === id) {
+                    return ({
+                        ...field,
+                        min: value
+                    })
+                }
+                return ({
+                    ...field
+                })
+            })
+        })
+    }
+
     const addOption = () => {
         setNewOption([...newOption, ""])
     }
@@ -298,13 +379,17 @@ export function Form(props: { formId: number }) {
                             case "text":
                                 return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "dropdown":
-                                return <LabeledOption id={field.id} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                                return <LabeledOption id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                            case "singleDropdown":
+                                return <LabeledOption id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
                             case "radio":
                                 return <LabeledRadio id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
                             case "textarea":
                                 return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "email":
                                 return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                            case "range":
+                                return <LabeledRange id={field.id} max={field.max} min={field.min} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} updateMaxCB={updateMaxRange} updateMinCB={updateMinRange} />
 
                         }
 
@@ -319,6 +404,27 @@ export function Form(props: { formId: number }) {
 
                     {/* DropDown */}
                     {newFieldType === "dropdown" ? <div> <h1 className='text-bold'>Question:</h1> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                        setNewField(e.target.value)
+
+                    }} />
+                        <h1 className="text-bold">Options</h1>
+                        {newOption.map((option, index) => <div key={index}>
+
+                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                                // setNewOption([...newOption,e.target.value])
+                                updateOption(e.target.value, Number(e.target.id))
+                            }} />
+                            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={(_) => {
+                                setNewOption(newOption.filter((option, i) => i !== index))
+                            }} >Remove</button>
+                        </div>
+
+                        )}
+                        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addOption} >Add Option</button>
+                    </div>
+                        : ""}
+                    {/*Single DropDown */}
+                    {newFieldType === "singleDropdown" ? <div> <h1 className='text-bold'>Question:</h1> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                         setNewField(e.target.value)
 
                     }} />
@@ -372,6 +478,25 @@ export function Form(props: { formId: number }) {
                 {newFieldType === "email" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                     setNewField(e.target.value)
                 }} /> : ""}
+
+                {/* Range */}
+
+                {newFieldType === "range" ? <div> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                    setNewField(e.target.value)
+                }} />
+                    <h1>Max Range</h1>
+
+                    <input type="number" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="max range" value={newMax} onChange={(e) => {
+                        setNewMax(Number(e.target.value))
+                    }} />
+
+                    <h1>Min Range</h1>
+
+                    <input type="number" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="min range" value={newMin} onChange={(e) => {
+                        setNewMin(Number(e.target.value))
+                    }} />
+
+                </div> : ""}
 
                 <select className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 my-2" value={newFieldType} onChange={(e) => {
                     setNewFieldType(e.target.value)

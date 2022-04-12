@@ -1,9 +1,9 @@
 import React from 'react';
 
-export default function LabeledOption(props: { id: number, options: string[], label: string, updateOptionCB: (value: string, id: number, fieldId: number) => void, updateQuestionCB: (value: string, id: number) => void, removeFieldCB: (id: number) => void, removeOptionCB: (fieldid: number, optionid: number) => void, value: string[] }) {
+export default function LabeledOption(props: { id: number, kind: string, options: string[], label: string, updateOptionCB: (value: string, id: number, fieldId: number) => void, updateQuestionCB: (value: string, id: number) => void, removeFieldCB: (id: number) => void, removeOptionCB: (fieldid: number, optionid: number) => void, value: string[] }) {
     return (
         <div className="gap-2 divide-dotted">
-            <h1 className='text-bold'>Question type:dropdown</h1>
+            <h1 className='text-bold'>Question type:{props.kind}</h1>
             <input type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={props.label} onChange={(e) => {
                 props.updateQuestionCB(e.target.value, props.id)
             }} />

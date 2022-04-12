@@ -1,4 +1,3 @@
-import { stringify } from 'querystring';
 import React, { useState } from 'react';
 import { optionanswer } from '../types/preview';
 import Multiselect from './Multiselect'

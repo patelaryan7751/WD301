@@ -9,6 +9,7 @@ export default function PreviewLabeledSingleOptions(props: { kind: string, optio
             <select className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 my-2" value={selected} onChange={(e) => {
                 setSelected(e.target.value)
             }} >
+                <option >Select</option>
                 {props.options.map((option, index) =>
                     <option key={index} value={option}>
                         {option}

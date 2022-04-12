@@ -11,6 +11,11 @@ const Multiselect = (props: { choices: string[], updateAnsStateCB: (state: strin
     useEffect(() => {
         console.log("Component Mounted");
         props.updateAnsStateCB(selectedItems)
+        const optionsToDelete = new Set(selectedItems);
+        const newArr = items.filter((option) => {
+            return !optionsToDelete.has(option);
+        });
+        setItems(newArr)
 
     }, [selectedItems])
 

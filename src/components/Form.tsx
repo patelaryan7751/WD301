@@ -1,7 +1,7 @@
 import { Link, navigate } from "raviger";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabeledInput from "../LabeledInput";
-import { formData, formField, textFieldTypes } from "../types/form"
+import { formData, formField, FormAction } from "../types/form"
 import LabeledOption from "./LabeledOption";
 import LabeledRadio from "./LabeledRadio";
 import LabeledRange from "./LabeledRange";
@@ -53,16 +53,81 @@ const saveFormData = (currentState: formData) => {
     saveLocalForms(updatedLocalForms);
 }
 
+
+
+const reduce = (state: formData, action: FormAction) => {
+    switch (action.type) {
+        case "addFieldACTION":
+            return {
+                ...state,
+                formFields: [
+                    ...state.formFields, action.value
+                ]
+            }
+
+
+        case "removeFieldACTION":
+            return {
+                ...state,
+                formFields: [
+                    ...action.value
+                ]
+
+            }
+
+        case "initialStateACTION":
+            return action.value
+        case "removeOptionACTION":
+            return {
+                ...state,
+
+                formFields: [...action.value]
+            }
+        case "updateFieldACTION":
+            return {
+                ...state,
+
+                formFields: [...action.value]
+            }
+        case "updateMaxACTION":
+            return {
+                ...state,
+
+                formFields: [...action.value]
+            }
+        case "updateMinACTION":
+            return {
+                ...state,
+
+                formFields: [...action.value]
+            }
+        case "updateExOptionACTION":
+            return {
+                ...state,
+
+                formFields: [...action.value]
+            }
+
+        case "updateTitleACTION":
+            return {
+                ...state,
+                title: action.value,
+            }
+
+    }
+
+}
+
 export function Form(props: { formId: number }) {
-    const [state, setState] = useState({
+    const [state, dispatch] = useReducer(reduce, {
         id: Number(new Date()),
         title: "Untitled Form",
         formFields: initialFormFields
     })
     // const [state, setState] = useState(() => initialState(props.formId))
-    const [newField, setNewField] = useState("");
+    const [newField, setNewField] = useState<string>("");
     const [newOption, setNewOption] = useState<string[]>([]);
-    const [newFieldType, setNewFieldType] = useState("");
+    const [newFieldType, setNewFieldType] = useState<string>("");
     const [newMax, setNewMax] = useState<number>(100);
     const [newMin, setNewMin] = useState<number>(0);
     const titleRef = useRef<HTMLInputElement>(null);
@@ -81,7 +146,7 @@ export function Form(props: { formId: number }) {
 
     useEffect(() => {
         const currentForm = initialState(props.formId)
-        setState(currentForm)
+        dispatch({ type: "initialStateACTION", value: currentForm })
     }, [])
 
     useEffect(() => {
@@ -95,173 +160,106 @@ export function Form(props: { formId: number }) {
         }
     }, [state])
 
-    const addField = () => {
+    const getNewField = (): formField => {
 
         switch (newFieldType) {
-            case "text":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "text",
-                            id: Number(new Date()),
-                            label: newField,
-                            type: "text",
-                            placeholder: newField,
-                            value: ""
-                        }
-                    ]
-                }
-                )
-                setNewField("")
-                setNewFieldType("")
-                break;
+
+            // case "text":
+            //     return {
+            //         kind: "text",
+            //         id: Number(new Date()),
+            //         label: newField,
+            //         type: "text",
+            //         placeholder: newField,
+            //         value: ""
+            //     }
 
             case "range":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "range",
-                            id: Number(new Date()),
-                            label: newField,
-                            type: "range",
-                            value: "",
-                            placeholder: newField,
-                            max: newMax,
-                            min: newMin
-                        }
-                    ]
+                return {
+                    kind: "range",
+                    id: Number(new Date()),
+                    label: newField,
+                    type: "range",
+                    value: "",
+                    placeholder: newField,
+                    max: newMax,
+                    min: newMin
                 }
-                )
-                setNewField("")
-                setNewFieldType("")
-                break;
 
             case "dropdown":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "dropdown",
-                            id: Number(new Date()),
-                            label: newField,
-                            placeholder: newField,
-                            value: [],
-                            options: newOption
-                        }
-                    ]
+                return {
+                    kind: "dropdown",
+                    id: Number(new Date()),
+                    label: newField,
+                    placeholder: newField,
+                    value: [],
+                    options: newOption
                 }
-                )
-                setNewField("")
-                setNewOption([])
-                setNewFieldType("")
-                break;
 
             case "singleDropdown":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "singleDropdown",
-                            id: Number(new Date()),
-                            label: newField,
-                            placeholder: newField,
-                            value: [],
-                            options: newOption
-                        }
-                    ]
+
+                return {
+                    kind: "singleDropdown",
+                    id: Number(new Date()),
+                    label: newField,
+                    placeholder: newField,
+                    value: [],
+                    options: newOption
                 }
-                )
-                setNewField("")
-                setNewOption([])
-                setNewFieldType("")
-                break;
 
             case "radio":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "radio",
-                            id: Number(new Date()),
-                            label: newField,
-                            placeholder: newField,
-                            value: "",
-                            options: newOption,
-                            type: "radio"
-                        }
 
-                    ]
+                return {
+                    kind: "radio",
+                    id: Number(new Date()),
+                    label: newField,
+                    placeholder: newField,
+                    value: "",
+                    options: newOption,
+                    type: "radio"
                 }
-                )
-                setNewField("")
-                setNewOption([])
-                setNewFieldType("")
-                break;
 
             case "textarea":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "textarea",
-                            id: Number(new Date()),
-                            label: newField,
-                            type: "textarea",
-                            placeholder: newField,
-                            value: ""
-                        }
-                    ]
+
+                return {
+                    kind: "textarea",
+                    id: Number(new Date()),
+                    label: newField,
+                    type: "textarea",
+                    placeholder: newField,
+                    value: ""
                 }
-                )
-                setNewField("")
-                setNewFieldType("")
-                break;
 
             case "email":
-                setState({
-                    ...state,
-                    formFields: [
-                        ...state.formFields,
-                        {
-                            kind: "email",
-                            id: Number(new Date()),
-                            label: newField,
-                            type: "email",
-                            placeholder: newField,
-                            value: ""
-                        }
-                    ]
+                return {
+                    kind: "email",
+                    id: Number(new Date()),
+                    label: newField,
+                    type: "email",
+                    placeholder: newField,
+                    value: ""
                 }
-                )
-                setNewField("")
-                setNewFieldType("")
-                break;
+            default:
+                return {
+                    kind: "text",
+                    id: Number(new Date()),
+                    label: newField,
+                    type: "text",
+                    placeholder: newField,
+                    value: ""
+                }
         }
 
     }
 
 
     const removeField = (id: number) => {
-        setState({
-            ...state,
-
-            formFields: state.formFields.filter(field => field.id !== id)
-        })
+        dispatch({ type: "removeFieldACTION", value: state.formFields.filter(field => field.id !== id) })
     }
 
     const removeOption = (fieldid: number, optionid: number) => {
-        setState({
-            ...state,
-
-            formFields: state.formFields.map((field) => {
+        dispatch({
+            type: "removeOptionACTION", value: state.formFields.map((field) => {
                 if (field.id === fieldid && (field.kind === "dropdown" || field.kind === "radio")) {
                     let newoptions = field.options.filter((option, index) => index !== optionid)
                     return { ...field, options: newoptions }
@@ -273,9 +271,8 @@ export function Form(props: { formId: number }) {
     }
 
     const updateField = (value: string, id: number) => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
+        dispatch({
+            type: "updateFieldACTION", value: state.formFields.map((field) => {
                 if (field.id === id) {
                     return ({
                         ...field,
@@ -292,9 +289,8 @@ export function Form(props: { formId: number }) {
 
 
     const updateMaxRange = (value: number, id: number) => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
+        dispatch({
+            type: "updateMaxACTION", value: state.formFields.map((field) => {
                 if (field.id === id) {
                     return ({
                         ...field,
@@ -309,9 +305,8 @@ export function Form(props: { formId: number }) {
     }
 
     const updateMinRange = (value: number, id: number) => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
+        dispatch({
+            type: "updateMinACTION", value: state.formFields.map((field) => {
                 if (field.id === id) {
                     return ({
                         ...field,
@@ -340,9 +335,8 @@ export function Form(props: { formId: number }) {
     }
 
     const updateExOption = (value: string, id: number, fieldId: number) => {
-        setState({
-            ...state,
-            formFields: state.formFields.map((field) => {
+        dispatch({
+            type: "updateExOptionACTION", value: state.formFields.map((field) => {
                 if (field.id === fieldId && field.kind === "dropdown") {
                     return ({
                         ...field,
@@ -366,10 +360,7 @@ export function Form(props: { formId: number }) {
         <div>
             <div className=" gap-2 p-4 divide-y-2 divide-dotted">
                 <input type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
-                    setState({
-                        ...state,
-                        title: e.target.value,
-                    })
+                    dispatch({ type: "updateTitleACTION", value: e.target.value })
                 }}
                     ref={titleRef}
                 />
@@ -510,7 +501,14 @@ export function Form(props: { formId: number }) {
                     )}
                 </select>
 
-                <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={addField} >Add Field</button>
+                <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={() => {
+                    dispatch({ type: "addFieldACTION", value: getNewField() })
+                    setNewField("")
+                    setNewFieldType("")
+                    setNewOption([])
+                    setNewMax(100)
+                    setNewMin(0)
+                }} >Add Field</button>
                 <div className='flex gap-4'>
                     <button onClick={(_) => {
                         saveFormData(state)

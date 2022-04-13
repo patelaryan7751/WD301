@@ -76,3 +76,51 @@ type EmailField = {
 }
 
 export type formField = TextField | DropdownField | RadioField | TextAreaField | EmailField | SingleDropdownField | RangeField
+
+// Action Reducer
+type InitialStateAction = {
+    type: "initialStateACTION",
+    value: formData
+}
+type AddAction = {
+    type: "addFieldACTION"
+    value: formField
+}
+
+type UpdateTitle = {
+    type: "updateTitleACTION"
+    value: string
+}
+
+type RemoveAction = {
+    type: "removeFieldACTION"
+    value: formField[]
+}
+
+type RemoveOptionAction = {
+    type: "removeOptionACTION"
+    value: formField[]
+}
+
+type UpdateFieldAction = {
+    type: "updateFieldACTION"
+    value: formField[]
+}
+
+type UpdateMaxAction = {
+    type: "updateMaxACTION"
+    value: formField[]
+}
+
+type UpdateMinAction = {
+    type: "updateMinACTION"
+    value: formField[]
+}
+
+type UpdateExOptionAction = {
+    type: "updateExOptionACTION"
+    value: formField[]
+}
+
+export type FormAction = AddAction | RemoveAction | InitialStateAction | RemoveOptionAction | UpdateFieldAction | UpdateMaxAction | UpdateMinAction | UpdateExOptionAction | UpdateTitle
+

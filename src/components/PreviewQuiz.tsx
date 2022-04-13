@@ -1,9 +1,9 @@
 import { navigate } from "raviger";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import PreviewLabeledInput from "./PreviewLabeledInput";
 import PreviewLabeledOptions from "./PreviewLabeledOptions";
 import { formData, formField } from "../types/form"
-import { optionanswer, previewAnswers } from "../types/preview"
+import { optionanswer, PreviewAction, PreviewAnsAction, previewAnswers } from "../types/preview"
 import PreviewLabeledRadio from "./PreviewLabeledRadio";
 import PreviewLabeledTextarea from "./PreviewLabeledTextarea";
 import PreviewLabeledEmail from "./PreviewLabeledEmail";
@@ -47,30 +47,53 @@ const initialAnswerState: (currentForm: formData) => previewAnswers[] = (current
 }
 
 
+const reducer = (state: formData, action: PreviewAction) => {
+    switch (action.type) {
+        case "initialStateACTION":
+            return action.value
+    }
+
+}
+
+const reducerAnswer = (state: previewAnswers[], action: PreviewAnsAction) => {
+    switch (action.type) {
+        case "initialAnswerACTION":
+            return action.value
+        case "updateAnswerFieldACTION":
+            return action.value
+        case "updateOptionAnswerFieldACTION":
+            return action.value
+        case "updateSingleOptionAnswerFieldACTION":
+            return action.value
+        case "resetAnswerFieldACTION":
+            return action.value
+    }
+
+}
 
 export function PreviewQuiz(props: { formId: number }) {
-    const [state, setState] = useState({
+    const [state, dispatch] = useReducer(reducer, {
         id: Number(new Date()),
         title: "Untitled Form",
         formFields: initialFormFields
     })
     const [currentQuestion, setCurrentQuestionState] = useState(0)
-    const [answers, setanswerState] = useState<previewAnswers[]>([])
+    const [answers, dispatchAnswer] = useReducer(reducerAnswer, [])
     useEffect(() => {
         state.id !== props.formId && navigate(`/preview/${state.id}`)
     }, [state.id, props.formId])
 
     useEffect(() => {
         const currentForm = initialState(props.formId)
-        setState(currentForm)
+        dispatch({ type: "initialStateACTION", value: currentForm })
         const currAnswer = initialAnswerState(currentForm)
-        setanswerState(currAnswer)
+        dispatchAnswer({ type: "initialAnswerACTION", value: currAnswer })
     }, [])
 
     const updateField = (value: string | string[], id: number) => {
         console.log(value)
-        setanswerState((prevanswerState) => {
-            return prevanswerState.map((answer) => {
+        dispatchAnswer({
+            type: "updateAnswerFieldACTION", value: answers.map((answer) => {
                 console.log("got1")
                 if (answer.id === Number(id)) {
                     console.log("got2")
@@ -80,9 +103,7 @@ export function PreviewQuiz(props: { formId: number }) {
                 }
                 return answer
             })
-        }
-
-        )
+        })
         console.log(answers)
     }
 
@@ -92,8 +113,8 @@ export function PreviewQuiz(props: { formId: number }) {
             return item.value
         })
         console.log(optionArr)
-        setanswerState((prevanswerState) => {
-            return prevanswerState.map((answer) => {
+        dispatchAnswer({
+            type: "updateOptionAnswerFieldACTION", value: answers.map((answer) => {
                 console.log(answer.id, Number(id))
                 if (answer.questionId === Number(id)) {
                     console.log("GOT")
@@ -103,15 +124,13 @@ export function PreviewQuiz(props: { formId: number }) {
                 }
                 return answer
             })
-        }
-        )
+        })
     }
 
 
     const updateSingleOptionAns = (value: string, id: number) => {
-
-        setanswerState((prevanswerState) => {
-            return prevanswerState.map((answer) => {
+        dispatchAnswer({
+            type: "updateSingleOptionAnswerFieldACTION", value: answers.map((answer) => {
                 console.log(answer.id, Number(id))
                 if (answer.questionId === Number(id)) {
                     return {
@@ -120,8 +139,7 @@ export function PreviewQuiz(props: { formId: number }) {
                 }
                 return answer
             })
-        }
-        )
+        })
     }
 
 
@@ -129,7 +147,7 @@ export function PreviewQuiz(props: { formId: number }) {
         const resetAnswer = state.formFields.map((field, index) => {
             return { id: index, question: field.label, answer: field.value, questionId: field.id }
         })
-        setanswerState(resetAnswer)
+        dispatchAnswer({ type: "resetAnswerFieldACTION", value: resetAnswer })
     }
     const renderField = (question: formField, index: number) => {
 

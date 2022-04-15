@@ -1,7 +1,28 @@
+
 export type formData = {
     id: number;
     title: string;
     formFields: formField[];
+}
+
+export type FormItem = {
+    id?: number;
+    title: string;
+    description?: string
+    is_public?: boolean
+}
+
+export type Errors<T> = Partial<Record<keyof T, string>>
+
+export const validateForm = (form: FormItem) => {
+    const errors: Errors<FormItem> = {}
+    if (form.title.length < 1) {
+        errors.title = "Title is Required"
+    }
+    if (form.title.length > 100) {
+        errors.title = "Title must be less than 100 characters";
+    }
+    return errors
 }
 export type textFieldTypes = "text" | "email" | "date" | "radio" | "textarea" | "range";
 
@@ -123,4 +144,5 @@ type UpdateExOptionAction = {
 }
 
 export type FormAction = AddAction | RemoveAction | InitialStateAction | RemoveOptionAction | UpdateFieldAction | UpdateMaxAction | UpdateMinAction | UpdateExOptionAction | UpdateTitle
+
 

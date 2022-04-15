@@ -381,8 +381,8 @@ export function Form(props: { formId: number }) {
                                 return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "range":
                                 return <LabeledRange id={field.id} max={field.max} min={field.min} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} updateMaxCB={updateMaxRange} updateMinCB={updateMinRange} />
-
                         }
+                        return ""
 
                     })}
                 </div>

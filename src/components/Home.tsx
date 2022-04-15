@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useQueryParams } from 'raviger';
-import logo from "../logo.svg"
 import { formData, FormItem } from "../types/form";
 import { getLocalForms } from "../utils/StorageUtils";
 import Modal from "./common/Modal";
@@ -66,9 +65,10 @@ export default function Home() {
                         {/* <p className="text-gray-700 text-base mb-4">
                             This form contains {form.formFields.length} questions to answer.
                         </p> */}
-                        <Link type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" href={`/form/${form.id}`}>Open</Link>
-                        <button type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" onClick={() => { setForms(forms.filter((f) => f.id !== form.id)) }}>Delete</button>
-                        <Link type="button" className="mx-2 inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" href={`/preview/${form.id}`}>Preview</Link>
+
+                        <p className="text-gray-700 text-base mb-4">
+                            {/* This form contains {form.formFields.length} questions to answer. */}
+                        </p>
                     </div>
                 </div>)
             }

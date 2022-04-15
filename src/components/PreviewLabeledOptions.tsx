@@ -13,7 +13,7 @@ export default function PreviewLabeledOptions(props: { kind: string, options: st
     }
     return (
         <div className="gap-2">
-            <h1>{props.value ? <div>Selected Answer:{props.value + " "}</div> : ""}</h1>
+
             <label className="text-xl">{props.label}</label>
             <Multiselect choices={props.options} updateAnsStateCB={updateAnsState} />
 
@@ -21,6 +21,7 @@ export default function PreviewLabeledOptions(props: { kind: string, options: st
                 console.log(selected)
                 props.updateOptionAnsCB(selected, props.id)
             }} >Save Selection</button>
+            <h1>{props.value ? <div>Selected Answer: <span>{props.value + " "}</span></div> : ""}</h1>
         </div>
     )
 }

@@ -14,33 +14,37 @@ export type optionanswer = {
 
 type initialStateAction = {
     type: "initialStateACTION"
-    value: formData
+    id: number
 }
 export type PreviewAction = initialStateAction
 
 type initialAnswerAction = {
     type: "initialAnswerACTION"
-    value: previewAnswers[]
+    id: number
 }
 
 type updateAnswerFieldAction = {
     type: "updateAnswerFieldACTION"
-    value: previewAnswers[]
+    value: string | string[]
+    id: number
+
 }
 
 type updateOptionAnswerFieldAction = {
     type: "updateOptionAnswerFieldACTION"
-    value: previewAnswers[]
+    options: string[]
+    id: number
 }
 
 type updateSingleOptionAnswerFieldAction = {
     type: "updateSingleOptionAnswerFieldACTION"
-    value: previewAnswers[]
+    value: string
+    id: number
 }
 
 type resetAnswerFieldAction = {
     type: "resetAnswerFieldACTION"
-    value: previewAnswers[]
+    formFieldState: formData
 }
 
 export type PreviewAnsAction = initialAnswerAction | updateAnswerFieldAction | updateOptionAnswerFieldAction | updateSingleOptionAnswerFieldAction | resetAnswerFieldAction

@@ -40,7 +40,6 @@ const initialState: (id: number) => formData = (id) => {
 }
 
 const initialAnswerState: (currentForm: formData) => previewAnswers[] = (currentForm) => {
-    console.log(currentForm)
     return currentForm.formFields.map((field, index) => {
         return { id: index, question: field.label, answer: field.value, questionId: field.id, }
     })
@@ -50,7 +49,7 @@ const initialAnswerState: (currentForm: formData) => previewAnswers[] = (current
 const reducer = (state: formData, action: PreviewAction) => {
     switch (action.type) {
         case "initialStateACTION":
-            return action.value
+            return initialState(action.id)
     }
 
 }
@@ -58,15 +57,38 @@ const reducer = (state: formData, action: PreviewAction) => {
 const reducerAnswer = (state: previewAnswers[], action: PreviewAnsAction) => {
     switch (action.type) {
         case "initialAnswerACTION":
-            return action.value
+            return initialAnswerState(initialState(action.id))
         case "updateAnswerFieldACTION":
-            return action.value
+            return state.map((answer) => {
+                if (answer.id === Number(action.id)) {
+                    let currentField = { ...answer, answer: action.value }
+                    return currentField
+                }
+                return answer
+            })
         case "updateOptionAnswerFieldACTION":
-            return action.value
+            return state.map((answer) => {
+                console.log(answer.id, Number(action.id))
+                if (answer.questionId === Number(action.id)) {
+                    return {
+                        ...answer, answer: action.options
+                    }
+                }
+                return answer
+            })
         case "updateSingleOptionAnswerFieldACTION":
-            return action.value
+            return state.map((answer) => {
+                if (answer.questionId === Number(action.id)) {
+                    return {
+                        ...answer, answer: action.value
+                    }
+                }
+                return answer
+            })
         case "resetAnswerFieldACTION":
-            return action.value
+            return action.formFieldState.formFields.map((field, index) => {
+                return { id: index, question: field.label, answer: field.value, questionId: field.id }
+            })
     }
 
 }
@@ -84,70 +106,29 @@ export function PreviewQuiz(props: { formId: number }) {
     }, [state.id, props.formId])
 
     useEffect(() => {
-        const currentForm = initialState(props.formId)
-        dispatch({ type: "initialStateACTION", value: currentForm })
-        const currAnswer = initialAnswerState(currentForm)
-        dispatchAnswer({ type: "initialAnswerACTION", value: currAnswer })
+        dispatch({ type: "initialStateACTION", id: props.formId })
+        dispatchAnswer({ type: "initialAnswerACTION", id: props.formId })
     }, [])
 
     const updateField = (value: string | string[], id: number) => {
-        console.log(value)
-        dispatchAnswer({
-            type: "updateAnswerFieldACTION", value: answers.map((answer) => {
-                console.log("got1")
-                if (answer.id === Number(id)) {
-                    console.log("got2")
-                    let currentField = { ...answer, answer: value }
-                    console.log(currentField)
-                    return currentField
-                }
-                return answer
-            })
-        })
-        console.log(answers)
+        dispatchAnswer({ type: "updateAnswerFieldACTION", value: value, id: id })
     }
 
     const updateOptionAns = (options: optionanswer[], id: number) => {
-        console.log(id)
         let optionArr: string[] = options.map((item) => {
             return item.value
         })
-        console.log(optionArr)
-        dispatchAnswer({
-            type: "updateOptionAnswerFieldACTION", value: answers.map((answer) => {
-                console.log(answer.id, Number(id))
-                if (answer.questionId === Number(id)) {
-                    console.log("GOT")
-                    return {
-                        ...answer, answer: optionArr
-                    }
-                }
-                return answer
-            })
-        })
+        dispatchAnswer({ type: "updateOptionAnswerFieldACTION", options: optionArr, id: id })
     }
 
 
     const updateSingleOptionAns = (value: string, id: number) => {
-        dispatchAnswer({
-            type: "updateSingleOptionAnswerFieldACTION", value: answers.map((answer) => {
-                console.log(answer.id, Number(id))
-                if (answer.questionId === Number(id)) {
-                    return {
-                        ...answer, answer: value
-                    }
-                }
-                return answer
-            })
-        })
+        dispatchAnswer({ type: "updateSingleOptionAnswerFieldACTION", value: value, id: id })
     }
 
 
     const resetForm = () => {
-        const resetAnswer = state.formFields.map((field, index) => {
-            return { id: index, question: field.label, answer: field.value, questionId: field.id }
-        })
-        dispatchAnswer({ type: "resetAnswerFieldACTION", value: resetAnswer })
+        dispatchAnswer({ type: "resetAnswerFieldACTION", formFieldState: state })
     }
     const renderField = (question: formField, index: number) => {
 
@@ -171,7 +152,7 @@ export function PreviewQuiz(props: { formId: number }) {
 
     return (
         <div>
-            <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
+            <div className="flex flex-col gap-2 p-4 border-solid border-gray-500">
                 <h1 className="text-xl">{state.title}</h1>
                 {state.formFields.length !== 0 ? <div>
                     Question {currentQuestion + 1}:

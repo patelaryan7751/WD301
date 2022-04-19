@@ -2,44 +2,24 @@ import { navigate } from "raviger";
 import React, { useState, useEffect, useReducer } from "react";
 import PreviewLabeledInput from "./PreviewLabeledInput";
 import PreviewLabeledOptions from "./PreviewLabeledOptions";
-import { formData, formField } from "../types/form"
-import { optionanswer, PreviewAction, PreviewAnsAction, previewAnswers } from "../types/preview"
+import { FetchField, formData, formField, RecievedFormData } from "../types/form"
+import { answerapi, optionanswer, PreviewAction, PreviewAnsAction, previewAnswers } from "../types/preview"
 import PreviewLabeledRadio from "./PreviewLabeledRadio";
 import PreviewLabeledTextarea from "./PreviewLabeledTextarea";
 import PreviewLabeledEmail from "./PreviewLabeledEmail";
 import PreviewLabeledSingleOptions from "./PreviewLabeledSingleOptions";
 import PreviewLabeledRange from "./PreviewLabeledRange";
+import { Pagination } from "../types/common";
+import { getFields, getForm, submitForm } from "../utils/apiUtils";
+import { setFormFields } from "../utils/helper";
 
 const initialFormFields: formField[] = [];
-const getLocalForms: () => formData[] = () => {
-    const savedFormsJSON = localStorage.getItem("savedForms")
-    return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
-}
 
-const initialState: (id: number) => formData = (id) => {
-    console.log("start process")
-    const notFoundForm = {
-        questionId: id,
-        id: id,
-        title: "Form Not Found",
-        formFields: []
-    }
-    const localForms = getLocalForms();
-    if (id !== 0) {
-        const form = localForms.find((f) => f.id === id)
-        if (form) {
-            console.log("got ", form)
-            return form
-        }
-    }
-    else {
-        console.log("not got ")
-        return notFoundForm
-    }
-    return notFoundForm
-}
 
 const initialAnswerState: (currentForm: formData) => previewAnswers[] = (currentForm) => {
+    console.log(currentForm.formFields.map((field, index) => {
+        return { id: index, question: field.label, answer: field.value, questionId: field.id, }
+    }))
     return currentForm.formFields.map((field, index) => {
         return { id: index, question: field.label, answer: field.value, questionId: field.id, }
     })
@@ -49,7 +29,7 @@ const initialAnswerState: (currentForm: formData) => previewAnswers[] = (current
 const reducer = (state: formData, action: PreviewAction) => {
     switch (action.type) {
         case "initialStateACTION":
-            return initialState(action.id)
+            return action.value
     }
 
 }
@@ -57,7 +37,8 @@ const reducer = (state: formData, action: PreviewAction) => {
 const reducerAnswer = (state: previewAnswers[], action: PreviewAnsAction) => {
     switch (action.type) {
         case "initialAnswerACTION":
-            return initialAnswerState(initialState(action.id))
+            console.log(initialAnswerState(action.value))
+            return initialAnswerState(action.value)
         case "updateAnswerFieldACTION":
             return state.map((answer) => {
                 if (answer.id === Number(action.id)) {
@@ -95,19 +76,43 @@ const reducerAnswer = (state: previewAnswers[], action: PreviewAnsAction) => {
 
 export function PreviewQuiz(props: { formId: number }) {
     const [state, dispatch] = useReducer(reducer, {
-        id: Number(new Date()),
+        id: props.formId,
         title: "Untitled Form",
         formFields: initialFormFields
     })
     const [currentQuestion, setCurrentQuestionState] = useState(0)
     const [answers, dispatchAnswer] = useReducer(reducerAnswer, [])
     useEffect(() => {
-        state.id !== props.formId && navigate(`/preview/${state.id}`)
+        state.id !== props.formId && navigate(`/preview/${props.formId}`)
     }, [state.id, props.formId])
 
+    const fetchForms = async (id: number) => {
+        try {
+            const data: RecievedFormData = await getForm(id)
+            const dataField: Pagination<FetchField> = await getFields(id)
+
+            let formFieldsdata: formField[] = setFormFields(dataField.results)
+            let formData = {
+                id: id,
+                title: data.title,
+                formFields: formFieldsdata
+            }
+            console.log(formData)
+            dispatchAnswer({ type: "initialAnswerACTION", value: formData })
+            dispatch({ type: "initialStateACTION", value: formData })
+            // dispatch({ type: "initialStateACTION", value: formData })
+
+
+
+        }
+        catch (error) {
+            console.log(error)
+
+        }
+    }
+
     useEffect(() => {
-        dispatch({ type: "initialStateACTION", id: props.formId })
-        dispatchAnswer({ type: "initialAnswerACTION", id: props.formId })
+        fetchForms(props.formId)
     }, [])
 
     const updateField = (value: string | string[], id: number) => {
@@ -129,6 +134,16 @@ export function PreviewQuiz(props: { formId: number }) {
 
     const resetForm = () => {
         dispatchAnswer({ type: "resetAnswerFieldACTION", formFieldState: state })
+    }
+    const submitFormApi = async () => {
+        const allanswer: answerapi[] = answers.map((answer) => {
+            return {
+                form_field: answer.questionId,
+                value: answer.answer
+            }
+        })
+        await submitForm(props.formId, allanswer)
+        navigate(`/`)
     }
     const renderField = (question: formField, index: number) => {
 
@@ -173,7 +188,8 @@ export function PreviewQuiz(props: { formId: number }) {
                         setCurrentQuestionState(Number(currentQuestion - 1))
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
                     {state.formFields.length - 1 === Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
-                        navigate(`/`)
+                        submitFormApi()
+
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
                     {state.formFields.length !== 0 ? <button onClick={() => {
                         resetForm()

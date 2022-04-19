@@ -1,43 +1,21 @@
 import { Link, navigate } from "raviger";
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabeledInput from "../LabeledInput";
-import { formData, formField, FormAction } from "../types/form"
+import { Pagination } from "../types/common";
+import { formData, formField, FormAction, RecievedFormData, FetchField } from "../types/form"
+import { addField, getFields, getForm, removeFieldApi } from "../utils/apiUtils";
+import { setFormFields } from "../utils/helper";
 import LabeledOption from "./LabeledOption";
 import LabeledRadio from "./LabeledRadio";
 import LabeledRange from "./LabeledRange";
 
-const initialFormFields: formField[] = [
-    // { kind: "dropdown", id: 1, label: "Priority", options: ["Low", "High"], value: "", placeholder: "Priority" }
-];
+const initialFormFields: formField[] = [];
 const getLocalForms: () => formData[] = () => {
     const savedFormsJSON = localStorage.getItem("savedForms")
     return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
+const Typeoptions = ["text", "dropdown", "radio"]
 
-const Typeoptions = ["text", "dropdown", "radio", "textarea", "email", "singleDropdown", "range"]
-
-const initialState: (id: number) => formData = (id) => {
-    console.log("start process")
-    const newForm = {
-        id: Number(new Date()),
-        title: "Untitled Form",
-        formFields: initialFormFields
-    }
-    const localForms = getLocalForms();
-    if (id !== 0) {
-        const form = localForms.find((f) => f.id === id)
-        if (form) {
-            console.log("got ", form)
-            return form
-        }
-    }
-    else {
-        console.log("not got ")
-        saveLocalForms([...localForms, newForm])
-        return newForm
-    }
-    return newForm
-}
 
 const saveLocalForms = (localForms: formData[]) => {
     console.log("save")
@@ -120,7 +98,7 @@ const reduce = (state: formData, action: FormAction) => {
 
 export function Form(props: { formId: number }) {
     const [state, dispatch] = useReducer(reduce, {
-        id: Number(new Date()),
+        id: props.formId,
         title: "Untitled Form",
         formFields: initialFormFields
     })
@@ -132,7 +110,7 @@ export function Form(props: { formId: number }) {
     const [newMin, setNewMin] = useState<number>(0);
     const titleRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
-        state.id !== props.formId && navigate(`/form/${state.id}`)
+        state.id !== props.formId && navigate(`/form/${props.formId}`)
     }, [state.id, props.formId])
     useEffect(() => {
         console.log("Component Mounted");
@@ -143,10 +121,32 @@ export function Form(props: { formId: number }) {
             document.title = "React App";
         }
     }, [])
+    const fetchForms = async (id: number) => {
+        try {
+            const data: RecievedFormData = await getForm(id)
+            const dataField: Pagination<FetchField> = await getFields(id)
 
+            let formFieldsdata: formField[] = setFormFields(dataField.results)
+            let formData = {
+                id: id,
+                title: data.title,
+                formFields: formFieldsdata
+            }
+            console.log(formData)
+            dispatch({ type: "initialStateACTION", value: formData })
+
+        }
+        catch (error) {
+            console.log(error)
+
+        }
+    }
     useEffect(() => {
-        const currentForm = initialState(props.formId)
-        dispatch({ type: "initialStateACTION", value: currentForm })
+        console.log(state)
+    }, [state])
+    useEffect(() => {
+        fetchForms(props.formId)
+
     }, [])
 
     useEffect(() => {
@@ -163,16 +163,6 @@ export function Form(props: { formId: number }) {
     const getNewField = (): formField => {
 
         switch (newFieldType) {
-
-            // case "text":
-            //     return {
-            //         kind: "text",
-            //         id: Number(new Date()),
-            //         label: newField,
-            //         type: "text",
-            //         placeholder: newField,
-            //         value: ""
-            //     }
 
             case "range":
                 return {
@@ -252,21 +242,86 @@ export function Form(props: { formId: number }) {
 
     }
 
+    const getFetchedFields = (field: formField) => {
+        switch (field.kind) {
+            case "text":
+                return {
+                    id: field.id,
+                    kind: "TEXT",
+                    label: field.label,
+                    options: [],
+                    value: ""
+                }
+            case "radio":
+                return {
+                    id: field.id,
+                    kind: "RADIO",
+                    label: field.label,
+                    options: newOption,
+                    value: ""
+                }
+            case "dropdown":
+                return {
+                    id: field.id,
+                    kind: "DROPDOWN",
+                    label: field.label,
+                    options: newOption,
+                    value: ""
+                }
+            default:
+                return {
+                    id: field.id,
+                    kind: "TEXT",
+                    label: field.label,
+                    options: [],
+                    value: ""
+                }
 
-    const removeField = (id: number) => {
+
+        }
+
+    }
+
+    const addNewfieldApi = async () => {
+        const fieldData = getNewField()
+        let fieldnewData: FetchField = getFetchedFields(fieldData)
+        console.log(fieldnewData)
+        try {
+            console.log(fieldnewData)
+            const data = await addField(props.formId, fieldnewData);
+            console.log(data)
+            dispatch({ type: "addFieldACTION", value: getNewField() })
+            setNewField("")
+            setNewFieldType("")
+            setNewOption([])
+            setNewMax(100)
+            setNewMin(0)
+            window.location.reload()
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    }
+
+
+    const removeField = async (id: number) => {
+        await removeFieldApi(props.formId, id)
         dispatch({ type: "removeFieldACTION", value: state.formFields.filter(field => field.id !== id) })
     }
 
     const removeOption = (fieldid: number, optionid: number) => {
         dispatch({
             type: "removeOptionACTION", value: state.formFields.map((field) => {
-                if (field.id === fieldid && (field.kind === "dropdown" || field.kind === "radio")) {
+                if (field.id === fieldid && (field.kind === "singleDropdown" || field.kind === "radio")) {
                     let newoptions = field.options.filter((option, index) => index !== optionid)
                     return { ...field, options: newoptions }
                 }
                 return field
 
             })
+
         })
     }
 
@@ -337,7 +392,7 @@ export function Form(props: { formId: number }) {
     const updateExOption = (value: string, id: number, fieldId: number) => {
         dispatch({
             type: "updateExOptionACTION", value: state.formFields.map((field) => {
-                if (field.id === fieldId && field.kind === "dropdown") {
+                if (field.id === fieldId && (field.kind === "singleDropdown" || field.kind === "radio")) {
                     return ({
                         ...field,
                         options: field.options.map((option, index) => {
@@ -365,20 +420,22 @@ export function Form(props: { formId: number }) {
                     ref={titleRef}
                 />
                 <div>
-                    {state.formFields.map((field) => {
+                    {console.log(state)}
+                    {state.formFields?.map((field) => {
+
                         switch (field.kind) {
                             case "text":
-                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                                return <LabeledInput formId={props.formId} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "dropdown":
-                                return <LabeledOption id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                                return <LabeledOption formId={props.formId} id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
                             case "singleDropdown":
-                                return <LabeledOption id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                                return <LabeledOption formId={props.formId} id={field.id} kind={field.kind} key={field.id} label={field.label} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
                             case "radio":
-                                return <LabeledRadio id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
+                                return <LabeledRadio formId={props.formId} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} value={field.value} options={field.options} updateOptionCB={updateExOption} updateQuestionCB={updateField} removeFieldCB={removeField} removeOptionCB={removeOption} />
                             case "textarea":
-                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                                return <LabeledInput formId={props.formId} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "email":
-                                return <LabeledInput id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
+                                return <LabeledInput formId={props.formId} id={field.id} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} />
                             case "range":
                                 return <LabeledRange id={field.id} max={field.max} min={field.min} key={field.id} label={field.label} placeholder={field.placeholder} type={field.type} removeFieldCB={removeField} updateFieldCB={updateField} value={field.value} updateMaxCB={updateMaxRange} updateMinCB={updateMinRange} />
                         }
@@ -502,12 +559,7 @@ export function Form(props: { formId: number }) {
                 </select>
 
                 <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' onClick={() => {
-                    dispatch({ type: "addFieldACTION", value: getNewField() })
-                    setNewField("")
-                    setNewFieldType("")
-                    setNewOption([])
-                    setNewMax(100)
-                    setNewMin(0)
+                    addNewfieldApi()
                 }} >Add Field</button>
                 <div className='flex gap-4'>
                     <button onClick={(_) => {
@@ -519,3 +571,5 @@ export function Form(props: { formId: number }) {
         </div>
     )
 }
+
+

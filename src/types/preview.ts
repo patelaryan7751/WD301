@@ -10,17 +10,21 @@ export type optionanswer = {
     label: string,
     value: string
 }
+export type answerapi = {
+    form_field: number,
+    value: string | string[]
+}
 
 
 type initialStateAction = {
     type: "initialStateACTION"
-    id: number
+    value: formData
 }
 export type PreviewAction = initialStateAction
 
 type initialAnswerAction = {
     type: "initialAnswerACTION"
-    id: number
+    value: formData
 }
 
 type updateAnswerFieldAction = {

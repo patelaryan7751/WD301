@@ -5,12 +5,23 @@ export type formData = {
     formFields: formField[];
 }
 
+export type RecievedFormData = {
+    id: number;
+    title: string;
+    description: string;
+    is_public: boolean;
+    created_by: number;
+    created_date: string
+    modified_date: string
+}
+
 export type FormItem = {
     id?: number;
     title: string;
     description?: string
     is_public?: boolean
 }
+
 
 export type Errors<T> = Partial<Record<keyof T, string>>
 
@@ -25,7 +36,13 @@ export const validateForm = (form: FormItem) => {
     return errors
 }
 export type textFieldTypes = "text" | "email" | "date" | "radio" | "textarea" | "range";
-
+export type FetchField = {
+    id: number;
+    kind: string;
+    label: string;
+    options: string[];
+    value: string
+}
 type TextField = {
     kind: "text"
     id: number;

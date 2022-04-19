@@ -8,6 +8,7 @@ import { setFormFields } from "../utils/helper";
 import LabeledOption from "./LabeledOption";
 import LabeledRadio from "./LabeledRadio";
 import LabeledRange from "./LabeledRange";
+import { Store } from 'react-notifications-component';
 
 const initialFormFields: formField[] = [];
 const getLocalForms: () => formData[] = () => {
@@ -414,7 +415,7 @@ export function Form(props: { formId: number }) {
     return (
         <div>
             <div className=" gap-2 p-4 divide-y-2 divide-dotted">
-                <input type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
+                <input aria-label='Title Name' type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" value={state.title} onChange={(e) => {
                     dispatch({ type: "updateTitleACTION", value: e.target.value })
                 }}
                     ref={titleRef}
@@ -446,7 +447,7 @@ export function Form(props: { formId: number }) {
                 <div className="gap-2">
                     {/* Text */}
 
-                    {newFieldType === "text" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                    {newFieldType === "text" ? <input aria-label='New Question' type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                         setNewField(e.target.value)
                     }} /> : ""}
 
@@ -458,7 +459,7 @@ export function Form(props: { formId: number }) {
                         <h1 className="text-bold">Options</h1>
                         {newOption.map((option, index) => <div key={index}>
 
-                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                            <input type="text" aria-label='New Options' id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
                                 // setNewOption([...newOption,e.target.value])
                                 updateOption(e.target.value, Number(e.target.id))
                             }} />
@@ -479,7 +480,7 @@ export function Form(props: { formId: number }) {
                         <h1 className="text-bold">Options</h1>
                         {newOption.map((option, index) => <div key={index}>
 
-                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                            <input type="text" aria-label="Update Option" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
                                 // setNewOption([...newOption,e.target.value])
                                 updateOption(e.target.value, Number(e.target.id))
                             }} />
@@ -500,7 +501,7 @@ export function Form(props: { formId: number }) {
                         <h1 className="text-bold">Options</h1>
                         {newOption.map((option, index) => <div key={index}>
 
-                            <input type="text" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                            <input type="text" aria-label="Update Option" id={`${index}`} className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
                                 // setNewOption([...newOption,e.target.value])
                                 updateOption(e.target.value, Number(e.target.id))
                             }} />
@@ -517,30 +518,30 @@ export function Form(props: { formId: number }) {
 
                 {/* TextArea*/}
 
-                {newFieldType === "textarea" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                {newFieldType === "textarea" ? <input type="text" aria-label="Update textarea Field" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                     setNewField(e.target.value)
                 }} /> : ""}
 
                 {/* Email */}
 
-                {newFieldType === "email" ? <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                {newFieldType === "email" ? <input type="text" aria-label="Update email Field" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                     setNewField(e.target.value)
                 }} /> : ""}
 
                 {/* Range */}
 
-                {newFieldType === "range" ? <div> <input type="text" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
+                {newFieldType === "range" ? <div> <input type="text" aria-label="Update range Field" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={newField} onChange={(e) => {
                     setNewField(e.target.value)
                 }} />
                     <h1>Max Range</h1>
 
-                    <input type="number" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="max range" value={newMax} onChange={(e) => {
+                    <input type="number" aria-label="Update max range Field" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="max range" value={newMax} onChange={(e) => {
                         setNewMax(Number(e.target.value))
                     }} />
 
                     <h1>Min Range</h1>
 
-                    <input type="number" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="min range" value={newMin} onChange={(e) => {
+                    <input type="number" aria-label="Update min range Field" className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="min range" value={newMin} onChange={(e) => {
                         setNewMin(Number(e.target.value))
                     }} />
 
@@ -564,6 +565,19 @@ export function Form(props: { formId: number }) {
                 <div className='flex gap-4'>
                     <button onClick={(_) => {
                         saveFormData(state)
+                        Store.addNotification({
+                            title: "Form Saved!!!!",
+                            message: `Form of id: ${props.formId} is saved`,
+                            type: "success",
+                            insert: "top",
+                            container: "top-right",
+                            animationIn: ["animate__animated", "animate__fadeIn"],
+                            animationOut: ["animate__animated", "animate__fadeOut"],
+                            dismiss: {
+                                duration: 5000,
+                                onScreen: true
+                            }
+                        });
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Save</button>
                     <Link href="/" className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg'>Home</Link>
                 </div>

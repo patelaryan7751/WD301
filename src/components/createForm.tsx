@@ -2,6 +2,7 @@ import { navigate } from "raviger";
 import React, { useState } from "react";
 import { Errors, FormItem, validateForm } from "../types/form";
 import { createForm } from "../utils/apiUtils";
+import { Store } from 'react-notifications-component';
 
 export default function CreateForm() {
     const [form, setForm] = useState<FormItem>({
@@ -11,14 +12,6 @@ export default function CreateForm() {
     });
 
     const [errors, setErrors] = useState<Errors<FormItem>>({});
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setForm({
-            ...form,
-            [name]: value,
-        });
-    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -31,6 +24,20 @@ export default function CreateForm() {
                 const data = await createForm(form);
                 console.log(data)
                 navigate(`/form/${data.id}`);
+                Store.addNotification({
+                    title: "New Form Created",
+                    message: `Form named ${form.title} is created`,
+                    type: "success",
+                    insert: "top",
+                    container: "top-right",
+                    animationIn: ["animate__animated", "animate__fadeIn"],
+                    animationOut: ["animate__animated", "animate__fadeOut"],
+                    dismiss: {
+                      duration: 5000,
+                      onScreen: true
+                    }
+                  });
+
             } catch (error) {
                 console.log(error);
             }
@@ -52,6 +59,7 @@ export default function CreateForm() {
                         type="text"
                         name="title"
                         id="title"
+                        aria-label="title"
                         value={form.title}
                         onChange={(e) => {
                             setForm({ ...form, title: e.target.value });
@@ -71,6 +79,7 @@ export default function CreateForm() {
                         type="text"
                         name="description"
                         id="description"
+                        aria-label="description"
                         value={form.description}
                         onChange={(e) => {
                             setForm({ ...form, description: e.target.value });
@@ -85,6 +94,7 @@ export default function CreateForm() {
                     <input
                         type="checkbox"
                         name="is_public"
+                        aria-label="is public"
                         id="is_public"
                         value={form.is_public ? "true" : "false"}
                         onChange={(e) => {

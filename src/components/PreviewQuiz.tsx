@@ -12,6 +12,7 @@ import PreviewLabeledRange from "./PreviewLabeledRange";
 import { Pagination } from "../types/common";
 import { getFields, getForm, submitForm } from "../utils/apiUtils";
 import { setFormFields } from "../utils/helper";
+import { Store } from 'react-notifications-component';
 
 const initialFormFields: formField[] = [];
 
@@ -100,14 +101,9 @@ export function PreviewQuiz(props: { formId: number }) {
             console.log(formData)
             dispatchAnswer({ type: "initialAnswerACTION", value: formData })
             dispatch({ type: "initialStateACTION", value: formData })
-            // dispatch({ type: "initialStateACTION", value: formData })
-
-
-
         }
         catch (error) {
             console.log(error)
-
         }
     }
 
@@ -189,6 +185,19 @@ export function PreviewQuiz(props: { formId: number }) {
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Back</button> : ""}
                     {state.formFields.length - 1 === Number(currentQuestion) && state.formFields.length !== 0 ? <button onClick={() => {
                         submitFormApi()
+                        Store.addNotification({
+                            title: "Form Successfully Submited !!!",
+                            message: `Form of name: ${state.title} is submitted!`,
+                            type: "success",
+                            insert: "top",
+                            container: "top-right",
+                            animationIn: ["animate__animated", "animate__fadeIn"],
+                            animationOut: ["animate__animated", "animate__fadeOut"],
+                            dismiss: {
+                                duration: 5000,
+                                onScreen: true
+                            }
+                        });
 
                     }} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 rounded-lg' >Submit</button> : ""}
                     {state.formFields.length !== 0 ? <button onClick={() => {

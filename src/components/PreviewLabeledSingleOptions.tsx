@@ -5,7 +5,7 @@ export default function PreviewLabeledSingleOptions(props: { kind: string, optio
     return (
         <div className="gap-2">
 
-            <label className="text-xl">{props.label}</label>
+            <label htmlFor={`${props.label}`} className="text-xl">{props.label}</label>
             <select className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 my-2" value={selected} onChange={(e) => {
                 setSelected(e.target.value)
             }} >

@@ -34,13 +34,13 @@ export default function LabeledRadio(props: { formId: number, id: number, option
     return (
         <div className="gap-2 divide-dotted">
             <h1 className='text-bold'>Question type:radio</h1>
-            <input type="text" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={props.label} onChange={(e) => {
+            <input type="text" aria-label="new question" className="w-full border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="new question" value={props.label} onChange={(e) => {
                 setField(e.target.value)
                 props.updateQuestionCB(e.target.value, props.id)
             }} />
             <h1 className='text-bold'>Options:</h1>
             {
-                props.options.map((option, index) => <div key={`${props.id}option${index}`}> <input type="text" id={`${props.id}option${index}`} key={`${props.id}option${index}`} className="w-128 border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
+                props.options.map((option, index) => <div key={`${props.id}option${index}`}> <input type="text" aria-label="new option" id={`${props.id}option${index}`} key={`${props.id}option${index}`} className="w-128 border-2 border-gray-200 rounded-lg p-2 m-2 flex-1" placeholder="option" value={option} onChange={(e) => {
                     setOptions(options.map((option, i) => {
                         if (i === index) {
                             return e.target.value

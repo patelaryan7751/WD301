@@ -7,6 +7,7 @@ import CreateForm from "./createForm";
 import { deleteForm, listForms } from "../utils/apiUtils";
 import { Pagination } from "../types/common";
 import { getCurrentUser } from "../utils/helper"
+import { Store } from 'react-notifications-component';
 
 const fetchForms = async (setFormsCB: (value: FormItem[]) => void) => {
     try {
@@ -36,6 +37,19 @@ export default function Home() {
     }, [])
     const deleteFormApi = async (formId: number) => {
         await deleteForm(formId)
+        Store.addNotification({
+            title: "Form Deleted",
+            message: `Form of id: ${formId} is deleted`,
+            type: "danger",
+            insert: "top",
+            container: "top-right",
+            animationIn: ["animate__animated", "animate__fadeIn"],
+            animationOut: ["animate__animated", "animate__fadeOut"],
+            dismiss: {
+                duration: 5000,
+                onScreen: true
+            }
+        });
         window.location.reload()
     }
     return (
@@ -53,10 +67,10 @@ export default function Home() {
                     e.preventDefault();
                     setQuery({ search: searchString })
                 }}>
-                    <label>
+                    <label htmlFor="Search">
                         Search
                     </label>
-                    <input name="search" value={searchString} onChange={(e) => {
+                    <input name="search" aria-label="Search" value={searchString} onChange={(e) => {
                         setSearchString(e.target.value)
                     }}
                         type="text"

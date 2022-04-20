@@ -31,7 +31,7 @@ export default function LabeledOption(props: { formId: number, id: number, kind:
             console.log("timer stopped")
             clearTimeout(timeout)
         }
-    }, [field, options])
+    }, [field, options]) // eslint-disable-line react-hooks/exhaustive-deps
     return (
         <div className="gap-2 divide-dotted">
             <h1 className='text-bold'>Question type:{props.kind}</h1>

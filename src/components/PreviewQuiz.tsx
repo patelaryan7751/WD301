@@ -75,7 +75,7 @@ const reducerAnswer = (state: previewAnswers[], action: PreviewAnsAction) => {
 
 }
 
-export function PreviewQuiz(props: { formId: number }) {
+export default function PreviewQuiz(props: { formId: number }) {
     const [state, dispatch] = useReducer(reducer, {
         id: props.formId,
         title: "Untitled Form",

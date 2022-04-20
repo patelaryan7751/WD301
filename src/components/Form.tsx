@@ -97,7 +97,7 @@ const reduce = (state: formData, action: FormAction) => {
 
 }
 
-export function Form(props: { formId: number }) {
+export default function Form(props: { formId: number }) {
     const [state, dispatch] = useReducer(reduce, {
         id: props.formId,
         title: "Untitled Form",

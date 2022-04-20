@@ -1,18 +1,31 @@
 import { useRoutes } from 'raviger'
-import About from "../components/About"
+import React from 'react'
 import AppContainer from '../AppContainer'
-import { Form } from '../components/Form'
-import Home from '../components/Home'
-import { PreviewQuiz } from '../components/PreviewQuiz'
-import Login from '../components/Login'
 import { User } from '../types/userType'
+const Home = React.lazy(() => import('../components/Home'));
+const About = React.lazy(() => import('../components/About'));
+const Login = React.lazy(() => import('../components/Login'));
+const Form = React.lazy(() => import('../components/Form'));
+const PreviewQuiz = React.lazy(() => import('../components/PreviewQuiz'));
 
 const routes = {
-    '/': () => <Home />,
-    '/login': () => <Login />,
-    '/about': () => <About />,
-    "/form/:id": ({ id }: { id: string }) => <Form formId={Number(id)} />,
-    "/preview/:id": ({ id }: { id: string }) => <PreviewQuiz formId={Number(id)} />
+    '/': () => <React.Suspense fallback={<div className="flex items-center justify-center">Loading ....</div>}>
+        <Home />
+    </React.Suspense>,
+    '/login': () => <React.Suspense fallback={<div className="flex items-center justify-center">Loading ....</div>}>
+        <Login />
+    </React.Suspense>,
+    '/about': () => <React.Suspense fallback={<div className="flex items-center justify-center">Loading ....</div>}>
+        <About />
+    </React.Suspense>,
+    "/form/:id": ({ id }: { id: string }) =>
+        <React.Suspense fallback={<div className="flex items-center justify-center">Loading ....</div>}>
+            <Form formId={Number(id)} />
+        </React.Suspense>,
+    "/preview/:id": ({ id }: { id: string }) =>
+        <React.Suspense fallback={<div className="flex items-center justify-center">Loading ....</div>}>
+            <PreviewQuiz formId={Number(id)} />
+        </React.Suspense>,
 }
 
 export default function AppRouter(props: { currentUser: User }) {

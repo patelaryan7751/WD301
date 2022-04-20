@@ -17,7 +17,7 @@ const Multiselect = (props: { choices: string[], updateAnsStateCB: (state: strin
         });
         setItems(newArr)
 
-    }, [selectedItems])
+    }, [selectedItems]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const toogleDropdown = () => {
         setDropdown(!dropdown)

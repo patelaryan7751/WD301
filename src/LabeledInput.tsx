@@ -30,7 +30,7 @@ export default function LabeledInput(props: { formId: number, id: number, label:
             console.log("timer stopped")
             clearTimeout(timeout)
         }
-    }, [field])
+    }, [field]) // eslint-disable-line react-hooks/exhaustive-deps
     return (
         <div className="gap-2">
             {props.type === "text" ? <div><label htmlFor='question' className="text-xl">Question type:text</label>

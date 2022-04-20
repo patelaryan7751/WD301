@@ -148,7 +148,7 @@ export function Form(props: { formId: number }) {
     useEffect(() => {
         fetchForms(props.formId)
 
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let timeout = setTimeout(() => {

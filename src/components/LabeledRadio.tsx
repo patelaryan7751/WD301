@@ -30,7 +30,7 @@ export default function LabeledRadio(props: { formId: number, id: number, option
             console.log("timer stopped")
             clearTimeout(timeout)
         }
-    }, [field, options])
+    }, [field, options]) // eslint-disable-line react-hooks/exhaustive-deps
     return (
         <div className="gap-2 divide-dotted">
             <h1 className='text-bold'>Question type:radio</h1>

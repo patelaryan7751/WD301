@@ -109,7 +109,7 @@ export function PreviewQuiz(props: { formId: number }) {
 
     useEffect(() => {
         fetchForms(props.formId)
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const updateField = (value: string | string[], id: number) => {
         dispatchAnswer({ type: "updateAnswerFieldACTION", value: value, id: id })

@@ -16,7 +16,6 @@ const fetchForms = async (setFormsCB: (value: FormItem[]) => void) => {
     }
     catch (error) {
         console.log(error)
-
     }
 }
 
